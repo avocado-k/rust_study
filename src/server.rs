@@ -1,5 +1,5 @@
 use std::net::TcpListener;
-use crate::http::Request;
+use crate::http::{ParseError, Request};
 use std::convert::TryFrom;
 use std::io::Read;
 use std::convert::Tryinto;
@@ -31,7 +31,6 @@ impl Server {
                                 Ok(request) => {},
                                 Err(e) => println!("Failed to parse a request: {}", e),
                             }
-
                         }
                         Err(e) => println!("failed to read from connection: {}", e),
                     }
