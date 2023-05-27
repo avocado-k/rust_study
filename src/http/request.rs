@@ -15,23 +15,40 @@ pub struct Request {
 impl TryFrom<&[u8]> for Request{
     type Error = ParseError;
 
-    //GET /serach?
+    //G ET /serach?name=abc&sort=1 HTTP/1.1
 
     fn try_from(buf: &[u8]) -> Result<Self, Self::Error>{
-        match str::from_utf(buf) {
-            Ok(request) => {},
-            Err(_) => return Err(ParseError::InvalidEncoding),
-        }
-
-        match str::from_utf8(buf).or(Err(ParseError::InvalidEncoding)){
-            Ok(request) =>{},
-            Err(e) => return Err(e),
-        }
-
+        // match str::from_utf(buf) {
+        //     Ok(request) => {},
+        //     Err(_) => return Err(ParseError::InvalidEncoding),
+        // }
+        //
+        // match str::from_utf8(buf).or(Err(ParseError::InvalidEncoding)){
+        //     Ok(request) =>{},
+        //     Err(e) => return Err(e),
+        // } same with line underneath
         let request = str::from_utf8(buf)?;
         unimplemented!();
     }
 }
+
+fn get_next_word(request: &str) -> Option<(&str, &str)>{
+    // let mut iter = request.chars();
+    // loop {
+    //     let item = iter.next();
+    //     match item {
+    //         Some(c) => {},
+    //         None => break,
+    //     }
+    // }
+    for (i, c) in request.chars().enumerate(){
+         if c == ' ' {
+             return Some((&request[..i],&request[i + 1..]));
+         }
+    }
+    None
+}
+
 pub enum ParseError{
     InvalidRequest,
     InvalidEncoding,
