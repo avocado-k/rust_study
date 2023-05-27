@@ -16,7 +16,6 @@ impl TryFrom<&[u8]> for Request{
     type Error = ParseError;
 
     //G ET /serach?name=abc&sort=1 HTTP/1.1
-
     fn try_from(buf: &[u8]) -> Result<Self, Self::Error>{
         // match str::from_utf(buf) {
         //     Ok(request) => {},
@@ -26,8 +25,20 @@ impl TryFrom<&[u8]> for Request{
         // match str::from_utf8(buf).or(Err(ParseError::InvalidEncoding)){
         //     Ok(request) =>{},
         //     Err(e) => return Err(e),
-        // } same with line underneath
         let request = str::from_utf8(buf)?;
+        //
+        // match get_next_word(request) {
+        //     Some((method,request)) =>{},
+        //     None => return Err(ParseError::InvalidRequest),
+        // } // } same with line underneath
+
+        let ( method, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
+        let ( path, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
+        let ( protocol, _) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
+
+        if protocol != "HTTP/1.1"{
+            return Err(ParseError::InvalidProtocol);
+        }
         unimplemented!();
     }
 }
@@ -42,7 +53,7 @@ fn get_next_word(request: &str) -> Option<(&str, &str)>{
     //     }
     // }
     for (i, c) in request.chars().enumerate(){
-         if c == ' ' {
+         if c == ' '|| c== '\r'{
              return Some((&request[..i],&request[i + 1..]));
          }
     }
