@@ -2,7 +2,7 @@ use std::net::TcpListener;
 use crate::http::{ParseError, Request};
 use std::convert::TryFrom;
 use std::io::Read;
-use std::convert::Tryinto;
+use std::convert::TryInto;
 
 pub struct Server {
     addr: String,
