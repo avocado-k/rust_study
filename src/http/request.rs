@@ -1,10 +1,9 @@
 use std::str::Utf8Error;
-use super::method::Method;
+use super::method::{MethodError,Method};
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt::{Display,Formatter,Result as FmtResult, Debug};
 use std::str;
-
 
 pub struct Request {
     path: String,
@@ -15,7 +14,7 @@ pub struct Request {
 impl TryFrom<&[u8]> for Request{
     type Error = ParseError;
 
-    //G ET /serach?name=abc&sort=1 HTTP/1.1
+    //GET /serach?name=abc&sort=1 HTTP/1.1
     fn try_from(buf: &[u8]) -> Result<Self, Self::Error>{
         // match str::from_utf(buf) {
         //     Ok(request) => {},
@@ -26,6 +25,8 @@ impl TryFrom<&[u8]> for Request{
         //     Ok(request) =>{},
         //     Err(e) => return Err(e),
         let request = str::from_utf8(buf)?;
+
+
         //
         // match get_next_word(request) {
         //     Some((method,request)) =>{},
@@ -39,6 +40,8 @@ impl TryFrom<&[u8]> for Request{
         if protocol != "HTTP/1.1"{
             return Err(ParseError::InvalidProtocol);
         }
+        let method: Method = method.parse()?;
+
         unimplemented!();
     }
 }
@@ -77,12 +80,17 @@ impl ParseError{
         }
     }
 }
+impl From<MethodError> for ParseError{
+    fn from(_: Utf8Error) -> Self{
+        Self::InvalidMethod
+    }
+}
+
 
 impl From<Utf8Error> for ParseError{
     fn from(_: Utf8Error) -> Self{
         Self::InvalidEncoding
     }
-
 }
 
 impl Display for ParseError{
